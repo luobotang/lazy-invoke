@@ -1,40 +1,38 @@
-var DEFAULT_DELAY_TIME = 50
+var DEFAULT_DELAY_TIME_MS = 50
 
 /*
  * @param {function} fn
- * @param {number} [delay] - ms
+ * @param {number} [delay=DEFAULT_DELAY_TIME_MS]
  * @param {Object} [context] - used as `this` when call fn
  * @returns {function}
  */
 module.exports = function (fn, delay, context) {
 
 	if (typeof fn !== 'function') {
-		throw new Error('require fn')
+		throw new Error('[lazy invoke] fn is not function')
 	}
 
-	if (arguments.length >= 2) {
-		if (typeof delay === 'number') {
-			delay = delay > 0 ? delay : DEFAULT_DELAY_TIME
-		} else { // (fn, context)
-			context = delay
-			delay = DEFAULT_DELAY_TIME
-		}
+	if (arguments.length == 2 && typeof delay !== 'number') {
+		context = delay
+		delay = DEFAULT_DELAY_TIME_MS
 	} else {
-		delay = DEFAULT_DELAY_TIME
+		delay = typeof delay === 'number' ? delay >>> 0 : DEFAULT_DELAY_TIME_MS
 	}
 
-	var lazyTimer
+	var _timer
 	var args
 	var self
 	var invokeFn = function () {
-		lazyTimer = null
+		_timer = null
 		fn.apply(self, args)
 	}
 
 	return function () {
 		self = context || this
 		args = arguments
-		if (lazyTimer) clearTimeout(lazyTimer)
-		lazyTimer = setTimeout(invokeFn, delay)
+		if (_timer) {
+			clearTimeout(_timer)
+		}
+		_timer = setTimeout(invokeFn, delay)
 	}
 }

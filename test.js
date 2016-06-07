@@ -20,15 +20,16 @@ function test() {
 	fn1(5)
 
 	// 2 - context
+	var obj = {
+		name: 'luobo'
+	}
 	var fn2 = LazyInvoke(function () {
 		if (this.name === 'luobo') {
 			console.log('2 - success')
 		} else {
 			console.log('2 - fail')
 		}
-	}, {
-		name: 'luobo'
-	})
+	}, obj)
 
 	fn2()
 
